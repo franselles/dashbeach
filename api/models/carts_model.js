@@ -14,11 +14,11 @@ const detailSchema = new Schema({
   typeID: { type: Number },
   type: { type: String, uppercase: true },
   itemID: { type: String, uppercase: true },
-  col: { type: Number },
-  row: { type: Number },
+  quantity: { type: Number },
   price: { type: Number },
   codeID: { type: String, uppercase: true },
-  numberItem: { type: Number },
+  used: { type: Boolean },
+  dateTimeUsed: { type: String },
 });
 
 const cartsSchema = new Schema(
@@ -28,6 +28,7 @@ const cartsSchema = new Schema(
     phone: { type: String },
     ticketID: { type: String },
     canceled: { type: Boolean },
+    payed: { type: Boolean },
     detail: [detailSchema],
   },
   { collection: 'carts' }

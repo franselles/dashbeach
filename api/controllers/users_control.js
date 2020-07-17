@@ -60,6 +60,7 @@ function postUser(req, res) {
   data.banned = false;
   data.bannedDate = null;
   data.userID = req.body.phone.slice(-4) + generateUUID();
+  data.auxID = req.body.auxID;
 
   bcrypt
     .hash(data.password, Number(process.env.BCRYPT_SALT_ROUNDS))
@@ -76,6 +77,7 @@ function postUser(req, res) {
           name: docStored.name,
           phone: docStored.phone,
           userID: docStored.userID,
+          auxID: docStored.auxID,
         });
       });
     })
@@ -111,6 +113,7 @@ function getUser(req, res) {
             name: doc[0].name,
             phone: doc[0].phone,
             userID: doc[0].userID,
+            auxID: doc[0].auxID,
           });
         } else {
           return res.status(404).send({

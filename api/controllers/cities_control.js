@@ -17,18 +17,6 @@ function getCities(req, res) {
   });
 }
 
-function redireccion(req, res, next) {
-  if (req.headers['x-forwarded-proto'] != 'https')
-    res.redirect('https://dashbed-down-19019.herokuapp.com/#/select');
-  else next(); /* Continue to other routes if we're not redirecting */
-}
-
-function redireccion2(req, res) {
-  res.render('index.pug');
-}
-
 module.exports = {
   getCities,
-  redireccion,
-  redireccion2,
 };

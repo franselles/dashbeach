@@ -1,53 +1,79 @@
 'use strict';
+const mongoose = require('mongoose');
+const dayjs = require('dayjs');
 
 const Carts = require('../models/carts_model');
+const { getCheckFilled } = require('./filled_control');
 
-function postCart(req, res) {
-  const data = new Carts();
+function postUsed(req, res) {
+  const id = req.body.id;
 
-  data.date = req.body.date;
-  data.userID = req.body.userID;
-  data.phone = req.body.phone;
-  data.ticketID = req.body.ticketID;
-  data.canceled = req.body.canceled;
-  data.detail = req.body.detail;
-
-  data.save((err, docStored) => {
+  Carts.findOneAndUpdate(
+    { 'detail._id': id },
+    {
+      $set: {
+        'detail.$.used': true,
+        'detail.$.dateTimeUsed': dayjs(new Date()).format('YYYY-MM-DD HH:MM'),
+      },
+    },
+    { new: true }
+  ).exec((err, doc) => {
     if (err)
-      res.status(500).send({
-        message: `Error al salvar en la base de datos: ${err} `,
+      return res.status(500).send({
+        message: `Error al realizar la petición: ${err}`,
+      });
+    if (!doc)
+      return res.status(404).send({
+        message: 'No existe',
       });
 
-    res.status(200).send(docStored._id);
+    res.status(200).send(doc);
   });
 }
 
-function postCart2(req, res) {
-  const cart = req.body;
+async function checkAvaiability(req, res) {
+  let data = req.body;
+  let toRemove = [];
 
   try {
-    getStock(cart).then(result => {
-      if (result.length > 0) {
-        return res.status(200).send(result);
-      }
-
-      const data = new Carts();
-
-      data.date = req.body.date;
-      data.userID = req.body.userID;
-      data.phone = req.body.phone;
-      data.ticketID = req.body.ticketID;
-      data.canceled = req.body.canceled;
-      data.detail = req.body.detail;
-
-      data.save(err => {
-        if (err)
-          res.status(500).send({
-            message: `Error al salvar en la base de datos: ${err} `,
-          });
-
-        res.status(200).send(true);
+    for (const item of data.detail) {
+      let result = await getCheckFilled({
+        cityID: item.cityID,
+        beachID: item.beachID,
+        sectorID: item.sectorID,
+        typeID: item.typeID,
+        date: item.date,
       });
+      if (result.available < item.quantity) {
+        let excess = item.quantity - result.available;
+        toRemove.push({ ...result, excess: excess });
+      }
+    }
+    res.status(200).send(toRemove);
+  } catch (error) {
+    return res.status(404).send(error);
+  }
+}
+
+async function postCart(req, res) {
+  try {
+    const data = new Carts();
+
+    data.date = req.body.date;
+    data.userID = req.body.userID;
+    data.phone = req.body.phone;
+    data.ticketID = req.body.ticketID;
+    data.canceled = req.body.canceled;
+    data.payed = true;
+    data.detail = req.body.detail;
+
+    data.save(err => {
+      if (err)
+        res.status(500).send({
+          message: `Error al salvar en la base de datos: ${err} `,
+        });
+
+      res.status(200).send(true);
     });
   } catch (error) {
     return res.status(404).send(error);
@@ -58,9 +84,14 @@ function getStock(cart) {
   let exists = [];
 
   try {
-    return new Promise(function (resolve) {
+    return new Promise(function(resolve) {
       cart.detail.forEach((element, index) => {
         Carts.aggregate([
+          {
+            $match: {
+              payed: true,
+            },
+          },
           { $unwind: '$detail' },
           {
             $match: {
@@ -88,6 +119,9 @@ function getStock(cart) {
               col: '$detail.col',
               row: '$detail.row',
               price: '$detail.price',
+              used: '$detail.used',
+              dateTimeUsed: '$detail.dateTimeUsed',
+              numberItem: '$detail.numberItem',
             },
           },
         ]).exec((err, doc) => {
@@ -131,6 +165,11 @@ function getCartsDetail(req, res) {
   const date = req.query.date;
 
   Carts.aggregate([
+    {
+      $match: {
+        payed: true,
+      },
+    },
     { $unwind: '$detail' },
     {
       $match: {
@@ -154,6 +193,81 @@ function getCartsDetail(req, res) {
         col: '$detail.col',
         row: '$detail.row',
         price: '$detail.price',
+        used: '$detail.used',
+        dateTimeUsed: '$detail.dateTimeUsed',
+        numberItem: '$detail.numberItem',
+      },
+    },
+  ]).exec((err, doc) => {
+    if (err)
+      return res.status(500).send({
+        message: `Error al realizar la petición: ${err}`,
+      });
+    if (!doc)
+      return res.status(404).send({
+        message: 'No existe',
+      });
+
+    res.status(200).send(doc);
+  });
+}
+
+function getItemUser(req, res) {
+  const id = req.query.id;
+  const ObjectId = mongoose.Types.ObjectId;
+
+  Carts.find({
+    'detail._id': ObjectId(id),
+  }).exec((err, doc) => {
+    if (err)
+      return res.status(500).send({
+        message: `Error al realizar la petición: ${err}`,
+      });
+    if (!doc)
+      return res.status(404).send({
+        message: 'No existe',
+      });
+
+    res.status(200).send(doc);
+  });
+}
+
+function getItemUserDetail(req, res) {
+  const id = req.query.id;
+  const ObjectId = mongoose.Types.ObjectId;
+
+  Carts.aggregate([
+    {
+      $match: {
+        payed: true,
+      },
+    },
+    { $unwind: '$detail' },
+    {
+      $match: {
+        'detail._id': ObjectId(id),
+      },
+    },
+    { $sort: { 'detail.date': 1, col: 1, row: 1 } },
+    {
+      $project: {
+        _id: '$detail._id',
+        date: '$detail.date',
+        cityID: '$detail.cityID',
+        city: '$detail.city',
+        beachID: '$detail.beachID',
+        beach: '$detail.beach',
+        sectorID: '$detail.sectorID',
+        sector: '$detail.sector',
+        typeID: '$detail.typeID',
+        type: '$detail.type',
+        itemID: '$detail.itemID',
+        col: '$detail.col',
+        row: '$detail.row',
+        price: '$detail.price',
+        used: '$detail.used',
+        dateTimeUsed: '$detail.dateTimeUsed',
+        numberItem: '$detail.numberItem',
       },
     },
   ]).exec((err, doc) => {
@@ -171,14 +285,14 @@ function getCartsDetail(req, res) {
 }
 
 function getTicketNumber(req, res) {
-  const date = req.query.date;
+  // const date = req.query.date;
 
   Carts.aggregate([
-    {
-      $match: {
-        date: date,
-      },
-    },
+    // {
+    //   $match: {
+    //     date: date,
+    //   },
+    // },
     {
       $count: 'tickets',
     },
@@ -196,11 +310,19 @@ function getTicketNumber(req, res) {
   });
 }
 
+async function multiShell(payload) {
+  console.log(payload);
+}
+
 module.exports = {
   postCart,
   getCarts,
   getTicketNumber,
   getCartsDetail,
   getStock,
-  postCart2,
+  getItemUserDetail,
+  getItemUser,
+  postUsed,
+  checkAvaiability,
+  multiShell,
 };

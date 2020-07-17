@@ -13,6 +13,8 @@ const usersSchema = new Schema(
     banned: { type: Boolean },
     bannedDate: { type: String },
     userID: { type: String },
+    auxID: { type: String },
+    tokenRecovery: { type: String },
   },
   { collection: 'users' }
 );

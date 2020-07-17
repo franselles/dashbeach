@@ -1,6 +1,8 @@
 'use strict';
 
 const Items = require('../models/items_model');
+const Sectors = require('../models/sectors_model');
+const Filled = require('./filled_control');
 
 function getItemsCitySector(req, res) {
   const cityID = req.query.cityID;
@@ -29,12 +31,14 @@ function getItemsCitySector(req, res) {
 function getItem(req, res) {
   const cityID = req.query.cityID;
   const sectorID = req.query.sectorID;
+  const beachID = req.query.beachID;
   const typeID = req.query.typeID;
   const col = req.query.col;
   const row = req.query.row;
   Items.find({
     cityID: cityID,
     sectorID: sectorID,
+    beachID: beachID,
     typeID: typeID,
     col: col,
     row: row,
@@ -52,80 +56,33 @@ function getItem(req, res) {
   });
 }
 
-function deleteItem(req, res) {
-  const id = req.query.id;
-
-  Items.deleteOne({
-    _id: id,
-  }).exec((err, doc) => {
-    if (err)
-      return res.status(500).send({
-        message: `Error al realizar la petición: ${err}`,
-      });
-    if (!doc)
-      return res.status(404).send({
-        message: 'No existe',
-      });
-
-    res.status(200).send({ message: 'Borrado' });
-  });
-}
-
-function deleteItems(req, res) {
-  const cityID = req.query.cityID;
-  const sectorID = req.query.sectorID;
-  const beachID = req.query.beachID;
-
-  Items.deleteMany({
-    cityID: cityID,
-    sectorID: sectorID,
-    beachID: beachID,
-  }).exec((err, doc) => {
-    if (err)
-      return res.status(500).send({
-        message: `Error al realizar la petición: ${err}`,
-      });
-    if (!doc)
-      return res.status(404).send({
-        message: 'No existe',
-      });
-
-    res.status(200).send({ message: 'Borrado' });
-  });
-}
-
-function postItem(req, res) {
-  console.log(req.body);
-
-  const data = new Items();
-
-  data.cityID = req.body.cityID;
-  data.city = req.body.city;
-  data.beachID = req.body.beachID;
-  data.beach = req.body.beach;
-  data.sectorID = req.body.sectorID;
-  data.sector = req.body.sector;
-  data.typeID = req.body.typeID;
-  data.type = req.body.type;
-  data.price = req.body.price;
-  data.itemID = req.body.itemID;
-  data.col = req.body.col;
-  data.row = req.body.row;
-  data.filled = req.body.filled;
-  data.empty = req.body.empty;
-  data.numberItem = req.body.numberItem;
-
-  data.save((err, docStored) => {
-    if (err)
-      res.status(500).send({
-        message: `Error al salvar en la base de datos: ${err} `,
-      });
-
-    res.status(200).send(docStored._id);
-  });
-}
-
 function postItems(req, res) {
+  // const data = new Sectors();
+
+  // data.cityID = req.body.cityID;
+  // data.city = req.body.city;
+  // data.beachID = req.body.beachID;
+  // data.beach = req.body.beach;
+  // data.sectorID = req.body.sectorID;
+  // data.sector = req.body.sector;
+  // data.description = req.body.description;
+  // data.positionX = req.body.positionX;
+  // data.positionY = req.body.positionY;
+  // data.image1 = req.body.image1;
+  // data.image2 = req.body.image2;
+  // data.cols = req.body.cols;
+  // data.rows = req.body.rows;
+  // data.blocked = req.body.blocked;
+
+  // data.save((err, docStored) => {
+  //   if (err)
+  //     res.status(500).send({
+  //       message: `Error al salvar en la base de datos: ${err} `,
+  //     });
+
+  //   res.status(200).send(docStored._id);
+  // });
+
   Items.insertMany(req.body, function (err, docStored) {
     if (err)
       res.status(500).send({
@@ -159,13 +116,56 @@ function putItems(req, res) {
   res.status(200).send({ updated: 'ok' });
 }
 
+async function getStateSectorItems(req, res) {
+  const querystring = {
+    cityID: req.query.cityID,
+    beachID: req.query.beachID,
+    sectorID: req.query.sectorID,
+    // typeID: req.query.typeID,
+    date: req.query.date,
+  };
+
+  try {
+    let i = await Filled.getItems(querystring);
+    let c = await Filled.getCarts(querystring);
+
+    i.forEach(item => {
+      item.filled = 0;
+      c.forEach(cart => {
+        if (cart.col === item.col && cart.row === item.row) {
+          item.filled = 1;
+        }
+      });
+    });
+
+    const sectors = await Sectors.findOne({
+      cityID: querystring.cityID,
+      beachID: querystring.beachID,
+      sectorID: querystring.sectorID,
+    }).exec();
+
+    let line = [];
+    let tempoSector = [];
+
+    for (let c = 0; c < i.length; c++) {
+      line.push(i[c]);
+      if ((c + 1) % sectors.rows == 0) {
+        tempoSector.push(line);
+        line = [];
+      }
+    }
+
+    return res.status(200).send(tempoSector);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 module.exports = {
   getItemsCitySector,
   getItem,
   postItems,
-  postItem,
   putItem,
   putItems,
-  deleteItems,
-  deleteItem,
+  getStateSectorItems,
 };
