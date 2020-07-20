@@ -55,6 +55,66 @@ async function checkAvaiability(req, res) {
   }
 }
 
+async function checkAvaiabilityFunction(data) {
+  let toRemove = [];
+
+  try {
+    for (const item of data.detail) {
+      let result = await getCheckFilled({
+        cityID: item.cityID,
+        beachID: item.beachID,
+        sectorID: item.sectorID,
+        typeID: item.typeID,
+        date: item.date,
+      });
+      if (result.available < item.quantity) {
+        let excess = item.quantity - result.available;
+        toRemove.push({ ...result, excess: excess });
+      }
+    }
+    return toRemove;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function postCartCheck(req, res) {
+  try {
+    const check = await checkAvaiabilityFunction(req.body);
+    const numTicket = await getTicketNumberFunction();
+    let nt = 1;
+    if (numTicket.length > 0) {
+      nt = numTicket[0].tickets + 1;
+    }
+
+    if (check.length == 0) {
+      const data = new Carts();
+
+      data.date = req.body.date;
+      data.userID = req.body.userID;
+      data.phone = req.body.phone;
+      data.ticketID = ('00000000' + nt).slice(-8);
+      // data.ticketID = req.body.ticketID;
+      data.canceled = req.body.canceled;
+      data.payed = true;
+      data.detail = req.body.detail;
+
+      data.save(err => {
+        if (err)
+          res.status(500).send({
+            message: `Error al salvar en la base de datos: ${err} `,
+          });
+
+        res.status(200).send(true);
+      });
+    } else {
+      res.status(200).send(check);
+    }
+  } catch (error) {
+    return res.status(404).send(error);
+  }
+}
+
 async function postCart(req, res) {
   try {
     const data = new Carts();
@@ -64,7 +124,7 @@ async function postCart(req, res) {
     data.phone = req.body.phone;
     data.ticketID = req.body.ticketID;
     data.canceled = req.body.canceled;
-    data.payed = true;
+    data.payed = req.body.payed;
     data.detail = req.body.detail;
 
     data.save(err => {
@@ -365,6 +425,25 @@ async function postMultiCart(req, res) {
   });
 }
 
+function getTicketNumberFunction() {
+  // const date = req.query.date;
+
+  return new Promise(resolve => {
+    Carts.aggregate([
+      // {
+      //   $match: {
+      //     date: date,
+      //   },
+      // },
+      {
+        $count: 'tickets',
+      },
+    ]).exec((err, doc) => {
+      resolve(doc);
+    });
+  });
+}
+
 function getTicketNumber(req, res) {
   // const date = req.query.date;
 
@@ -402,4 +481,5 @@ module.exports = {
   postUsed,
   checkAvaiability,
   postMultiCart,
+  postCartCheck,
 };

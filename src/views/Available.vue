@@ -114,53 +114,6 @@ export default {
       this.updateRemoveCartDetail(data);
     },
 
-    generateUUID(s) {
-      let d = new Date().getTime();
-      const uuid = s.replace(/[xy]/g, function (c) {
-        const r = (d + Math.random() * 16) % 16 | 0;
-        d = Math.floor(d / 16);
-        return (c == 'x' ? r : (r & 0x3) | 0x8).toString(16);
-      });
-      return uuid;
-    },
-
-    getTicketNumberLocal() {
-      this.getTicketNumber().then(result => {
-        // this.cartLocal.ticketID = (
-        //   this.cartLocal.date + ('00000' + result).slice(-5)
-        // ).replace(/-/g, '');
-        this.cartLocal.ticketID = ('00000000' + result).slice(-8);
-
-        this.postCart(this.cartLocal).then(result => {
-          if (result === true) {
-            setTimeout(() => {
-              this.resetCart();
-              this.$router.replace({ name: 'citybeaches' });
-            }, 2000);
-          } else {
-            this.detailDuplicated = result;
-            result.forEach(element => {
-              const index = this.cartLocal.detail.findIndex(
-                (p => p.citiID === element.cityID) &&
-                  (p => p.beachID === element.beachID) &&
-                  (p => p.sectorID === element.sectorID) &&
-                  (p => p.typeID === element.typeID) &&
-                  (p => p.col === element.col) &&
-                  (p => p.row === element.row)
-              );
-
-              this.cartLocal.detail.splice(index, 1);
-            });
-
-            if (this.detailDuplicated.length > 0) {
-              this.setCart(this.cartLocal);
-              this.calcTotal();
-            }
-          }
-        });
-      });
-    },
-
     send() {
       let f = this.cartDetail.filter(item => item.quantity > 0);
       this.cartLocal.date = dayjs(new Date()).format('YYYY-MM-DD');
@@ -172,7 +125,7 @@ export default {
       this.cartLocal.ticketID = null;
 
       this.cartLocal.canceled = false;
-      this.cartLocal.payed = false;
+      this.cartLocal.payed = true;
 
       f.forEach(item => {
         this.cartLocal.detail.push({
@@ -185,7 +138,7 @@ export default {
           sector: this.sectorActual.sector,
           typeID: item.typeID,
           type: item.type,
-          itemID: item.typeID + this.generateUUID('xxxxx'),
+          itemID: null,
           price: item.price,
           quantity: item.quantity,
           codeID: null,

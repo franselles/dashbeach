@@ -25,7 +25,7 @@ api.get('/beaches', beachesControl.getBeaches);
 api.get('/employee', employeesControl.getEmployee);
 
 // Carts
-api.post('/cart', cartsControl.postCart);
+api.post('/cart', cartsControl.postCartCheck);
 api.post('/check', cartsControl.checkAvaiability);
 api.post('/multicart', cartsControl.postMultiCart);
 api.get('/carts', cartsControl.getCarts);
