@@ -33,6 +33,12 @@ export default [
         component: () => import('@/views/Cart.vue'),
         meta: { requiresAuth: true },
       },
+      {
+        path: '/shell',
+        name: 'shell',
+        component: () => import('@/views/Shell.vue'),
+        meta: { requiresAuth: true },
+      },
     ],
   },
 ];

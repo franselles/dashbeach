@@ -176,6 +176,20 @@ export default {
       }
     },
 
+    async postMultiCart(context, payload) {
+      try {
+        const data = await Vue.axios({
+          method: 'post',
+          url: 'multicart',
+          data: payload,
+        });
+
+        return data.data;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
     async getCategories(context, payload) {
       try {
         const data = await Vue.axios({

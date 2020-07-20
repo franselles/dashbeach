@@ -14,8 +14,8 @@
           RESERVAS
         </b-navbar-item>
         <b-navbar-dropdown label="EDITA SECTOR">
-          <b-navbar-item>
-            CREAR ITEMS SECTOR
+          <b-navbar-item tag="router-link" :to="{ path: '/shell' }">
+            RESERVA MULTIPLE
           </b-navbar-item>
         </b-navbar-dropdown>
       </template>

@@ -25,10 +25,12 @@ function getSectors(req, res) {
 
 function getSector(req, res) {
   const cityID = req.query.cityID;
+  const beachID = req.query.cityID;
   const sectorID = req.query.sectorID;
 
   Sectors.find({
     cityID: cityID,
+    beachID: beachID,
     sectorID: sectorID,
   }).exec((err, doc) => {
     if (err)
@@ -45,7 +47,7 @@ function getSector(req, res) {
 }
 
 function postSectors(req, res) {
-  Sectors.insertMany(req.body, function (err, docStored) {
+  Sectors.insertMany(req.body, function(err, docStored) {
     if (err)
       res.status(500).send({
         message: `Error al salvar en la base de datos: ${err} `,
