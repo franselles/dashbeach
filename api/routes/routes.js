@@ -35,6 +35,7 @@ api.get('/detailday', cartsControl.getCartsDetail);
 // Users
 api.get('/user/email', usersControl.checkEmail);
 api.get('/user/id', usersControl.getUserID);
+api.get('/users', usersControl.getUsers);
 api.post('/userreg', usersControl.getUser);
 api.post('/user', usersControl.postUser);
 

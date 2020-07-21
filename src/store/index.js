@@ -10,7 +10,7 @@ import userStore from './user.store.js';
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-  strict: true,
+  // strict: true,
   state: {},
   mutations: {},
   actions: {},

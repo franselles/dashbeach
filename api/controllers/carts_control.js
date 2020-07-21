@@ -4,6 +4,7 @@ const dayjs = require('dayjs');
 
 const Carts = require('../models/carts_model');
 const { getCheckFilled } = require('./filled_control');
+const { getSectorFunction } = require('./sectors_control');
 
 function postUsed(req, res) {
   const id = req.body.id;
@@ -31,6 +32,29 @@ function postUsed(req, res) {
   });
 }
 
+async function checkAvaiabilityFunction(data) {
+  let toRemove = [];
+
+  try {
+    for (const item of data.detail) {
+      let result = await getCheckFilled({
+        cityID: item.cityID,
+        beachID: item.beachID,
+        sectorID: item.sectorID,
+        typeID: item.typeID,
+        date: item.date,
+      });
+      if (result.available < item.quantity) {
+        let excess = item.quantity - result.available;
+        toRemove.push({ ...result, excess: excess });
+      }
+    }
+    return toRemove;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 async function checkAvaiability(req, res) {
   let data = req.body;
   let toRemove = [];
@@ -55,27 +79,14 @@ async function checkAvaiability(req, res) {
   }
 }
 
-async function checkAvaiabilityFunction(data) {
-  let toRemove = [];
-
-  try {
-    for (const item of data.detail) {
-      let result = await getCheckFilled({
-        cityID: item.cityID,
-        beachID: item.beachID,
-        sectorID: item.sectorID,
-        typeID: item.typeID,
-        date: item.date,
-      });
-      if (result.available < item.quantity) {
-        let excess = item.quantity - result.available;
-        toRemove.push({ ...result, excess: excess });
-      }
-    }
-    return toRemove;
-  } catch (error) {
-    console.log(error);
-  }
+function generateUUID(s) {
+  let d = new Date().getTime();
+  const uuid = s.replace(/[xy]/g, function(c) {
+    const r = (d + Math.random() * 16) % 16 | 0;
+    d = Math.floor(d / 16);
+    return (c == 'x' ? r : (r & 0x3) | 0x8).toString(16);
+  });
+  return uuid;
 }
 
 async function postCartCheck(req, res) {
@@ -93,22 +104,43 @@ async function postCartCheck(req, res) {
       data.date = req.body.date;
       data.userID = req.body.userID;
       data.phone = req.body.phone;
-      data.ticketID = ('00000000' + nt).slice(-8);
+      data.ticketID = generateUUID('xxx') + '-' + ('00000000' + nt).slice(-8);
       // data.ticketID = req.body.ticketID;
       data.canceled = req.body.canceled;
       data.payed = true;
+      data.lang = req.body.lang;
+      data.payMethod = req.body.payMethod;
       data.detail = req.body.detail;
-
-      data.save(err => {
+      data.coupon = req.body.coupon;
+      for (const iterator of data.detail) {
+        let sector = await getSectorFunction(
+          iterator.cityID,
+          iterator.beachID,
+          iterator.sectorID
+        );
+        iterator.city = sector.city;
+        iterator.beach = sector.beach;
+        iterator.sector = sector.sector;
+      }
+      data.save((err, docStored) => {
         if (err)
           res.status(500).send({
             message: `Error al salvar en la base de datos: ${err} `,
           });
 
-        res.status(200).send(true);
+        res.status(200).send({
+          success: true,
+          data: {
+            id: docStored.ticketID,
+          },
+        });
       });
     } else {
-      res.status(200).send(check);
+      res.status(200).send({
+        success: false,
+        code: 1,
+        data: check,
+      });
     }
   } catch (error) {
     return res.status(404).send(error);
@@ -124,7 +156,7 @@ async function postCart(req, res) {
     data.phone = req.body.phone;
     data.ticketID = req.body.ticketID;
     data.canceled = req.body.canceled;
-    data.payed = req.body.payed;
+    data.payed = true;
     data.detail = req.body.detail;
 
     data.save(err => {
@@ -344,6 +376,25 @@ function getItemUserDetail(req, res) {
   });
 }
 
+function getTicketNumberFunction() {
+  // const date = req.query.date;
+
+  return new Promise(resolve => {
+    Carts.aggregate([
+      // {
+      //   $match: {
+      //     date: date,
+      //   },
+      // },
+      {
+        $count: 'tickets',
+      },
+    ]).exec((err, doc) => {
+      resolve(doc);
+    });
+  });
+}
+
 async function getTicketNumberFunc() {
   // const date = req.query.date;
 
@@ -388,9 +439,12 @@ async function postMultiCart(req, res) {
       date: dayjs(dayIndex).format('YYYY-MM-DD'),
       userID: payload.userID,
       phone: payload.phone,
-      ticketID: ('00000000' + nt).slice(-8),
+      ticketID: generateUUID('xxx') + '-' + ('00000000' + nt).slice(-8),
       canceled: payload.canceled,
       payed: payload.payed,
+      lang: req.body.lang,
+      payMethod: req.body.payMethod,
+      coupon: req.body.coupon,
       detail: [
         {
           date: dayjs(dayIndex).format('YYYY-MM-DD'),
@@ -425,25 +479,6 @@ async function postMultiCart(req, res) {
   });
 }
 
-function getTicketNumberFunction() {
-  // const date = req.query.date;
-
-  return new Promise(resolve => {
-    Carts.aggregate([
-      // {
-      //   $match: {
-      //     date: date,
-      //   },
-      // },
-      {
-        $count: 'tickets',
-      },
-    ]).exec((err, doc) => {
-      resolve(doc);
-    });
-  });
-}
-
 function getTicketNumber(req, res) {
   // const date = req.query.date;
 
@@ -470,6 +505,26 @@ function getTicketNumber(req, res) {
   });
 }
 
+function getTicket(req, res) {
+  const ticketID = req.query.id;
+
+  Carts.findOne({
+    ticketID: ticketID,
+    payed: true,
+  }).exec((err, doc) => {
+    if (err)
+      return res.status(500).send({
+        message: `Error al realizar la petición: ${err}`,
+      });
+    if (!doc)
+      return res.status(404).send({
+        message: 'No existe',
+      });
+
+    res.status(200).send(doc);
+  });
+}
+
 module.exports = {
   postCart,
   getCarts,
@@ -480,6 +535,7 @@ module.exports = {
   getItemUser,
   postUsed,
   checkAvaiability,
-  postMultiCart,
   postCartCheck,
+  getTicket,
+  postMultiCart,
 };

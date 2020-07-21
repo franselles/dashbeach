@@ -198,73 +198,19 @@ export default {
       this.$router.go(-1);
     },
 
-    purchase() {
-      this.cartLocal.userID = this.userID;
-      this.cartLocal.phone = this.userID;
-      // this.getTicketNumber({ date: this.cartLocal.date }).then(result => {
-      this.getTicketNumber().then(result => {
-        // this.cartLocal.ticketID = (
-        //   this.cartLocal.date + ('00000' + result).slice(-5)
-        // ).replace(/-/g, '');
-        this.cartLocal.ticketID = ('00000000' + result).slice(-8);
-
-        this.checkAvaiability(this.cartLocal).then(result => {
-          if (result.length > 0) {
-            for (const r of result) {
-              this.detailDuplicated.push({
-                date: r.date,
-                sectorID: r.sectorID,
-                typeID: r.typeID,
-                quantity: r.excess,
-              });
-
-              let i = this.cartLocal.detail.findIndex(item => {
-                return (
-                  item.cityID == r.cityID &&
-                  item.beachID == r.beachID &&
-                  item.sectorID == r.sectorID &&
-                  item.typeID == r.typeID
-                );
-              });
-
-              this.cartLocal.detail[i].quantity -= r.excess;
-
-              if (this.cartLocal.detail[i].quantity == 0) {
-                this.removeItem(i);
-              }
-            }
-          } else {
-            this.postCart(this.cartLocal).then(result => {
-              if (result === true) {
-                setTimeout(() => {
-                  this.resetCart();
-                  this.$router.replace({ name: 'citybeaches' });
-                }, 2000);
-              }
-            });
-          }
-        });
-      });
-    },
-
     purchase2() {
       this.cartLocal.userID = this.userID;
       this.cartLocal.phone = this.userID;
-      // this.getTicketNumber({ date: this.cartLocal.date }).then(result => {
-      // this.cartLocal.ticketID = (
-      //   this.cartLocal.date + ('00000' + result).slice(-5)
-      // ).replace(/-/g, '');
-      // this.cartLocal.ticketID = ('00000000' + result).slice(-8);
 
       this.postCart(this.cartLocal).then(result => {
-        if (result === true) {
+        if (result.success === true) {
           setTimeout(() => {
             this.resetCart();
             this.$router.replace({ name: 'citybeaches' });
-          }, 2000);
+          }, 1000);
         } else {
-          if (result.length > 0) {
-            for (const r of result) {
+          if (result.data.length > 0) {
+            for (const r of result.data) {
               this.detailDuplicated.push({
                 date: r.date,
                 sectorID: r.sectorID,

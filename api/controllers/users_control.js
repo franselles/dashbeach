@@ -4,21 +4,26 @@ require('dotenv').config();
 
 const Users = require('../models/users_model');
 
-function generateUUID() {
-  let d = new Date().getTime();
-  const uuid = 'xxyx'.replace(/[xy]/g, function (c) {
-    const r = (d + Math.random() * 16) % 16 | 0;
-    d = Math.floor(d / 16);
-    return (c == 'x' ? r : (r & 0x3) | 0x8).toString(16);
-  });
-  return uuid;
-}
-
 function getUserID(req, res) {
   const userID = req.query.userID;
   Users.find({
     userID: userID,
   }).exec((err, doc) => {
+    if (err)
+      return res.status(500).send({
+        message: `Error al realizar la petición: ${err}`,
+      });
+    if (doc.length == 0)
+      return res.status(404).send({
+        message: 'No existe',
+      });
+
+    res.status(200).send(doc);
+  });
+}
+
+function getUsers(req, res) {
+  Users.find().exec((err, doc) => {
     if (err)
       return res.status(500).send({
         message: `Error al realizar la petición: ${err}`,
@@ -59,12 +64,12 @@ function postUser(req, res) {
   data.date = date.toISOString().split('T')[0];
   data.banned = false;
   data.bannedDate = null;
-  data.userID = req.body.phone.slice(-4) + generateUUID();
+  data.userID = req.body.phone;
   data.auxID = req.body.auxID;
 
   bcrypt
     .hash(data.password, Number(process.env.BCRYPT_SALT_ROUNDS))
-    .then(function (hashedPassword) {
+    .then(function(hashedPassword) {
       data.password = hashedPassword;
       data.save((err, docStored) => {
         if (err)
@@ -81,7 +86,7 @@ function postUser(req, res) {
         });
       });
     })
-    .catch(function (err) {
+    .catch(function(err) {
       return res.status(500).send({
         message: `Error al realizar la petición: ${err}`,
       });
@@ -106,7 +111,7 @@ function getUser(req, res) {
 
     bcrypt
       .compare(password, doc[0].password)
-      .then(function (result) {
+      .then(function(result) {
         if (result) {
           return res.status(200).send({
             _id: doc[0]._id,
@@ -121,7 +126,7 @@ function getUser(req, res) {
           });
         }
       })
-      .catch(function (err) {
+      .catch(function(err) {
         return res.status(500).send({
           message: `Error al realizar la petición: ${err}`,
         });
@@ -129,4 +134,4 @@ function getUser(req, res) {
   });
 }
 
-module.exports = { getUserID, postUser, getUser, checkEmail };
+module.exports = { getUserID, postUser, getUser, checkEmail, getUsers };

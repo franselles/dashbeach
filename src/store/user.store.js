@@ -243,7 +243,7 @@ export default {
     async getUser({ commit, dispatch }, payload) {
       try {
         const data = await Vue.axios({
-          method: 'get',
+          method: 'post',
           url: 'user',
           params: {
             email: payload.email,
@@ -255,6 +255,37 @@ export default {
           await commit('setUser', data.data);
           await dispatch('getCarts', { userID: data.data.userID });
           return true;
+        }
+      } catch (error) {
+        return false;
+      }
+    },
+
+    async getUserId(context, payload) {
+      try {
+        const data = await Vue.axios({
+          method: 'get',
+          url: 'user/id',
+          params: {
+            userID: payload.userID,
+          },
+        });
+        if (data.data) {
+          return data.data;
+        }
+      } catch (error) {
+        return false;
+      }
+    },
+
+    async getUsers() {
+      try {
+        const data = await Vue.axios({
+          method: 'get',
+          url: 'users',
+        });
+        if (data.data) {
+          return data.data;
         }
       } catch (error) {
         return false;

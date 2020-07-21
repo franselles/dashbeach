@@ -73,6 +73,9 @@ export default {
         ticketID: null,
         canceled: false,
         payed: false,
+        lang: '',
+        payMethod: 1,
+        coupon: '',
         detail: [],
       },
     };
@@ -126,6 +129,9 @@ export default {
 
       this.cartLocal.canceled = false;
       this.cartLocal.payed = true;
+      this.cartLocal.lang = 'es';
+      this.cartLocal.payMethod = 1;
+      this.cartLocal.coupon = '';
 
       f.forEach(item => {
         this.cartLocal.detail.push({

@@ -23,14 +23,24 @@ function getSectors(req, res) {
   });
 }
 
+function getSectorFunction(cityID, beachID, sectorID) {
+  return new Promise(resolve => {
+    Sectors.findOne({
+      cityID: cityID,
+      beachID: beachID,
+      sectorID: sectorID,
+    }).exec((err, doc) => {
+      resolve(doc);
+    });
+  });
+}
+
 function getSector(req, res) {
   const cityID = req.query.cityID;
-  const beachID = req.query.cityID;
   const sectorID = req.query.sectorID;
 
   Sectors.find({
     cityID: cityID,
-    beachID: beachID,
     sectorID: sectorID,
   }).exec((err, doc) => {
     if (err)
@@ -47,7 +57,7 @@ function getSector(req, res) {
 }
 
 function postSectors(req, res) {
-  Sectors.insertMany(req.body, function(err, docStored) {
+  Sectors.insertMany(req.body, function (err, docStored) {
     if (err)
       res.status(500).send({
         message: `Error al salvar en la base de datos: ${err} `,
@@ -57,4 +67,4 @@ function postSectors(req, res) {
   });
 }
 
-module.exports = { postSectors, getSectors, getSector };
+module.exports = { postSectors, getSectors, getSector, getSectorFunction };

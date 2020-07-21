@@ -144,6 +144,9 @@ export default {
       ticketID: '',
       canceled: false,
       payed: true,
+      lang: '',
+      payMethod: 1,
+      coupon: '',
       detail: {
         date: '',
         cityID: '',
@@ -253,7 +256,10 @@ export default {
         phone: this.userID,
         ticketID: 0,
         canceled: this.canceled,
-        payed: this.payed,
+        payed: true,
+        lang: 'es',
+        payMethod: 1,
+        coupon: '',
         detail: [
           {
             date: '',

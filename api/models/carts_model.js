@@ -29,6 +29,9 @@ const cartsSchema = new Schema(
     ticketID: { type: String },
     canceled: { type: Boolean },
     payed: { type: Boolean },
+    lang: { type: String },
+    payMethod: { type: Number },
+    coupon: { type: String },
     detail: [detailSchema],
   },
   { collection: 'carts' }
