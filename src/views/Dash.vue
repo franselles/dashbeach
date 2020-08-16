@@ -10,10 +10,18 @@
         <b-navbar-item tag="router-link" :to="{ path: '/dash' }">
           HOME
         </b-navbar-item>
-        <b-navbar-item tag="router-link" :to="{ path: '/citybeaches' }">
-          RESERVAS
-        </b-navbar-item>
-        <b-navbar-dropdown label="EDITA SECTOR">
+        <b-navbar-dropdown label="VENTAS">
+          <b-navbar-item tag="router-link" :to="{ path: '/invoices' }">
+            DIA
+          </b-navbar-item>
+          <b-navbar-item tag="router-link" :to="{ path: '/cash' }">
+            FACTURACION
+          </b-navbar-item>
+        </b-navbar-dropdown>
+        <b-navbar-dropdown label="RESERVAR">
+          <b-navbar-item tag="router-link" :to="{ path: '/citybeaches' }">
+            RESERVA SIMPLE
+          </b-navbar-item>
           <b-navbar-item tag="router-link" :to="{ path: '/shell' }">
             RESERVA MULTIPLE
           </b-navbar-item>

@@ -81,7 +81,7 @@ async function checkAvaiability(req, res) {
 
 function generateUUID(s) {
   let d = new Date().getTime();
-  const uuid = s.replace(/[xy]/g, function(c) {
+  const uuid = s.replace(/[xy]/g, function (c) {
     const r = (d + Math.random() * 16) % 16 | 0;
     d = Math.floor(d / 16);
     return (c == 'x' ? r : (r & 0x3) | 0x8).toString(16);
@@ -157,7 +157,10 @@ async function postCart(req, res) {
     data.ticketID = req.body.ticketID;
     data.canceled = req.body.canceled;
     data.payed = true;
+    data.lang = req.body.lang;
+    data.payMethod = req.body.payMethod;
     data.detail = req.body.detail;
+    data.coupon = req.body.coupon;
 
     data.save(err => {
       if (err)
@@ -172,230 +175,7 @@ async function postCart(req, res) {
   }
 }
 
-function getStock(cart) {
-  let exists = [];
-
-  try {
-    return new Promise(function(resolve) {
-      cart.detail.forEach((element, index) => {
-        Carts.aggregate([
-          {
-            $match: {
-              payed: true,
-            },
-          },
-          { $unwind: '$detail' },
-          {
-            $match: {
-              'detail.cityID': Number(element.cityID),
-              'detail.beachID': Number(element.beachID),
-              'detail.sectorID': Number(element.sectorID),
-              'detail.typeID': Number(element.typeID),
-              'detail.date': element.date,
-              'detail.row': element.row,
-              'detail.col': element.col,
-            },
-          },
-          {
-            $project: {
-              date: '$detail.date',
-              cityID: '$detail.cityID',
-              city: '$detail.city',
-              beachID: '$detail.beachID',
-              beach: '$detail.beach',
-              sectorID: '$detail.sectorID',
-              sector: '$detail.sector',
-              typeID: '$detail.typeID',
-              type: '$detail.type',
-              itemID: '$detail.itemID',
-              col: '$detail.col',
-              row: '$detail.row',
-              price: '$detail.price',
-              used: '$detail.used',
-              dateTimeUsed: '$detail.dateTimeUsed',
-              numberItem: '$detail.numberItem',
-            },
-          },
-        ]).exec((err, doc) => {
-          if (err) return { error: 500 };
-          if (doc.length > 0) {
-            exists.push(doc[0]);
-          }
-
-          if (index == cart.detail.length - 1) {
-            resolve(exists);
-          }
-        });
-      });
-    });
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-function getCarts(req, res) {
-  const userID = req.query.userID;
-
-  Carts.find({
-    userID: userID,
-  }).exec((err, doc) => {
-    if (err)
-      return res.status(500).send({
-        message: `Error al realizar la petición: ${err}`,
-      });
-    if (!doc)
-      return res.status(404).send({
-        message: 'No existe',
-      });
-
-    res.status(200).send(doc);
-  });
-}
-
-function getCartsDetail(req, res) {
-  const userID = req.query.userID;
-  const date = req.query.date;
-
-  Carts.aggregate([
-    {
-      $match: {
-        payed: true,
-      },
-    },
-    { $unwind: '$detail' },
-    {
-      $match: {
-        userID: userID,
-        'detail.date': { $gte: date },
-      },
-    },
-    { $sort: { 'detail.date': 1, col: 1, row: 1 } },
-    {
-      $project: {
-        date: '$detail.date',
-        cityID: '$detail.cityID',
-        city: '$detail.city',
-        beachID: '$detail.beachID',
-        beach: '$detail.beach',
-        sectorID: '$detail.sectorID',
-        sector: '$detail.sector',
-        typeID: '$detail.typeID',
-        type: '$detail.type',
-        itemID: '$detail.itemID',
-        col: '$detail.col',
-        row: '$detail.row',
-        price: '$detail.price',
-        used: '$detail.used',
-        dateTimeUsed: '$detail.dateTimeUsed',
-        numberItem: '$detail.numberItem',
-      },
-    },
-  ]).exec((err, doc) => {
-    if (err)
-      return res.status(500).send({
-        message: `Error al realizar la petición: ${err}`,
-      });
-    if (!doc)
-      return res.status(404).send({
-        message: 'No existe',
-      });
-
-    res.status(200).send(doc);
-  });
-}
-
-function getItemUser(req, res) {
-  const id = req.query.id;
-  const ObjectId = mongoose.Types.ObjectId;
-
-  Carts.find({
-    'detail._id': ObjectId(id),
-  }).exec((err, doc) => {
-    if (err)
-      return res.status(500).send({
-        message: `Error al realizar la petición: ${err}`,
-      });
-    if (!doc)
-      return res.status(404).send({
-        message: 'No existe',
-      });
-
-    res.status(200).send(doc);
-  });
-}
-
-function getItemUserDetail(req, res) {
-  const id = req.query.id;
-  const ObjectId = mongoose.Types.ObjectId;
-
-  Carts.aggregate([
-    {
-      $match: {
-        payed: true,
-      },
-    },
-    { $unwind: '$detail' },
-    {
-      $match: {
-        'detail._id': ObjectId(id),
-      },
-    },
-    { $sort: { 'detail.date': 1, col: 1, row: 1 } },
-    {
-      $project: {
-        _id: '$detail._id',
-        date: '$detail.date',
-        cityID: '$detail.cityID',
-        city: '$detail.city',
-        beachID: '$detail.beachID',
-        beach: '$detail.beach',
-        sectorID: '$detail.sectorID',
-        sector: '$detail.sector',
-        typeID: '$detail.typeID',
-        type: '$detail.type',
-        itemID: '$detail.itemID',
-        col: '$detail.col',
-        row: '$detail.row',
-        price: '$detail.price',
-        used: '$detail.used',
-        dateTimeUsed: '$detail.dateTimeUsed',
-        numberItem: '$detail.numberItem',
-      },
-    },
-  ]).exec((err, doc) => {
-    if (err)
-      return res.status(500).send({
-        message: `Error al realizar la petición: ${err}`,
-      });
-    if (!doc)
-      return res.status(404).send({
-        message: 'No existe',
-      });
-
-    res.status(200).send(doc);
-  });
-}
-
-function getTicketNumberFunction() {
-  // const date = req.query.date;
-
-  return new Promise(resolve => {
-    Carts.aggregate([
-      // {
-      //   $match: {
-      //     date: date,
-      //   },
-      // },
-      {
-        $count: 'tickets',
-      },
-    ]).exec((err, doc) => {
-      resolve(doc);
-    });
-  });
-}
-
-async function getTicketNumberFunc() {
+async function getTicketNumberFunction() {
   // const date = req.query.date;
 
   return new Promise(resolve => {
@@ -423,7 +203,7 @@ async function postMultiCart(req, res) {
 
   let numDays = date1.diff(date2, 'days') + 1;
 
-  let ticketNumber = await getTicketNumberFunc();
+  let ticketNumber = await getTicketNumberFunction();
 
   let nt = 0;
   if (ticketNumber.length > 0) {
@@ -469,7 +249,7 @@ async function postMultiCart(req, res) {
     cart.push(items);
   }
 
-  Carts.insertMany(cart, function(err, docStored) {
+  Carts.insertMany(cart, function (err, docStored) {
     if (err)
       res.status(500).send({
         message: `Error al salvar en la base de datos: ${err} `,
@@ -479,15 +259,304 @@ async function postMultiCart(req, res) {
   });
 }
 
-function getTicketNumber(req, res) {
-  // const date = req.query.date;
+function getCarts(req, res) {
+  const userID = req.query.userID;
+
+  Carts.find({
+    userID: userID,
+  }).exec((err, doc) => {
+    if (err)
+      return res.status(500).send({
+        message: `Error al realizar la petición: ${err}`,
+      });
+    if (!doc)
+      return res.status(404).send({
+        message: 'No existe',
+      });
+
+    res.status(200).send(doc);
+  });
+}
+
+function getCartsDetail(req, res) {
+  const userID = req.query.userID;
+  const date = req.query.date;
 
   Carts.aggregate([
-    // {
-    //   $match: {
-    //     date: date,
+    {
+      $match: {
+        payed: true,
+      },
+    },
+    { $unwind: '$detail' },
+    {
+      $match: {
+        userID: userID,
+        'detail.date': date,
+      },
+    },
+    { $sort: { 'detail.sectorID': 1, 'detail.typeID': 1 } },
+    {
+      $project: {
+        date: '$detail.date',
+        cityID: '$detail.cityID',
+        city: '$detail.city',
+        beachID: '$detail.beachID',
+        beach: '$detail.beach',
+        sectorID: '$detail.sectorID',
+        sector: '$detail.sector',
+        typeID: '$detail.typeID',
+        type: '$detail.type',
+        itemID: '$detail.itemID',
+        quantity: '$detail.quantity',
+        price: '$detail.price',
+        used: '$detail.used',
+        dateTimeUsed: '$detail.dateTimeUsed',
+        numberItem: '$detail.numberItem',
+      },
+    },
+  ]).exec((err, doc) => {
+    if (err)
+      return res.status(500).send({
+        message: `Error al realizar la petición: ${err}`,
+      });
+    if (!doc)
+      return res.status(404).send({
+        message: 'No existe',
+      });
+
+    res.status(200).send(doc);
+  });
+}
+
+function getCartsDetailGropuedSector(req, res) {
+  const date = req.query.date;
+
+  Carts.aggregate([
+    {
+      $match: {
+        payed: true,
+      },
+    },
+    { $unwind: '$detail' },
+    {
+      $match: {
+        'detail.date': date,
+      },
+    },
+    {
+      $group: {
+        _id: {
+          userID: '$userID',
+          date: '$detail.date',
+          cityID: '$detail.cityID',
+          city: '$detail.city',
+          beachID: '$detail.beachID',
+          beach: '$detail.beach',
+          sectorID: '$detail.sectorID',
+          sector: '$detail.sector',
+          typeID: '$detail.typeID',
+          type: '$detail.type',
+          itemID: '$detail.itemID',
+          quantity: '$detail.quantity',
+          price: '$detail.price',
+          used: '$detail.used',
+          dateTimeUsed: '$detail.dateTimeUsed',
+          numberItem: '$detail.numberItem',
+        },
+      },
+    },
+    {
+      $sort: {
+        '_id.userID': 1,
+        '_id.cityID': 1,
+        '_id.beachID': 1,
+        '_id.sectorID': 1,
+        '_id.typeID': 1,
+      },
+    },
+  ])
+
+    // Carts.find({
+    //   payed: true,
+    //   detail: { $elemMatch: { date: date } },
+    // })
+
+    // Carts.aggregate([
+    //   {
+    //     $match: {
+    //       payed: true,
+    //     },
     //   },
-    // },
+    //   {
+    //     $match: {
+    //       'detail.date': date,
+    //     },
+    //   },
+    // ])
+    .exec((err, doc) => {
+      if (err)
+        return res.status(500).send({
+          message: `Error al realizar la petición: ${err}`,
+        });
+      if (!doc)
+        return res.status(404).send({
+          message: 'No existe',
+        });
+
+      let docReformated = [];
+
+      for (const iterator of doc) {
+        docReformated.push(iterator._id);
+      }
+
+      res.status(200).send(docReformated);
+    });
+}
+
+function getItemUser(req, res) {
+  const id = req.query.id;
+  const ObjectId = mongoose.Types.ObjectId;
+
+  Carts.find({
+    'detail._id': ObjectId(id),
+  }).exec((err, doc) => {
+    if (err)
+      return res.status(500).send({
+        message: `Error al realizar la petición: ${err}`,
+      });
+    if (!doc)
+      return res.status(404).send({
+        message: 'No existe',
+      });
+
+    res.status(200).send(doc);
+  });
+}
+
+function getItemUserDetail(req, res) {
+  const id = req.query.id;
+  const ObjectId = mongoose.Types.ObjectId;
+
+  Carts.aggregate([
+    {
+      $match: {
+        payed: true,
+      },
+    },
+    { $unwind: '$detail' },
+    {
+      $match: {
+        'detail._id': ObjectId(id),
+      },
+    },
+    {
+      $project: {
+        _id: '$detail._id',
+        date: '$detail.date',
+        cityID: '$detail.cityID',
+        city: '$detail.city',
+        beachID: '$detail.beachID',
+        beach: '$detail.beach',
+        sectorID: '$detail.sectorID',
+        sector: '$detail.sector',
+        typeID: '$detail.typeID',
+        type: '$detail.type',
+        itemID: '$detail.itemID',
+        quantity: '$detail.quantity',
+        price: '$detail.price',
+        used: '$detail.used',
+        dateTimeUsed: '$detail.dateTimeUsed',
+        numberItem: '$detail.numberItem',
+      },
+    },
+  ]).exec((err, doc) => {
+    if (err)
+      return res.status(500).send({
+        message: `Error al realizar la petición: ${err}`,
+      });
+    if (!doc)
+      return res.status(404).send({
+        message: 'No existe',
+      });
+
+    res.status(200).send(doc);
+  });
+}
+
+function getTicketNumberByYearFunction() {
+  const dateL = new Date();
+  const y = String(dateL.getFullYear());
+
+  return new Promise(resolve => {
+    Carts.aggregate([
+      {
+        $project: {
+          year: { $substr: ['$date', 0, 4] },
+        },
+      },
+      {
+        $match: {
+          year: y,
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: '$year',
+          },
+          tickets: {
+            $sum: 1,
+          },
+        },
+      },
+    ]).exec((err, doc) => {
+      resolve(doc);
+    });
+  });
+}
+
+function getTicketNumberByYear(req, res) {
+  const dateL = new Date();
+  const y = String(dateL.getFullYear());
+
+  Carts.aggregate([
+    {
+      $project: {
+        year: { $substr: ['$date', 0, 4] },
+      },
+    },
+    {
+      $match: {
+        year: y,
+      },
+    },
+    {
+      $group: {
+        _id: {
+          year: '$year',
+        },
+        tickets: {
+          $sum: 1,
+        },
+      },
+    },
+  ]).exec((err, doc) => {
+    if (err)
+      return res.status(500).send({
+        message: `Error al realizar la petición: ${err}`,
+      });
+    if (!doc)
+      return res.status(404).send({
+        message: 'No existe',
+      });
+
+    res.status(200).send(doc);
+  });
+}
+
+function getTicketNumber(req, res) {
+  Carts.aggregate([
     {
       $count: 'tickets',
     },
@@ -510,7 +579,7 @@ function getTicket(req, res) {
 
   Carts.findOne({
     ticketID: ticketID,
-    payed: true,
+    payed: false,
   }).exec((err, doc) => {
     if (err)
       return res.status(500).send({
@@ -530,12 +599,14 @@ module.exports = {
   getCarts,
   getTicketNumber,
   getCartsDetail,
-  getStock,
   getItemUserDetail,
   getItemUser,
   postUsed,
   checkAvaiability,
   postCartCheck,
   getTicket,
+  getTicketNumberByYear,
+  getTicketNumberByYearFunction,
   postMultiCart,
+  getCartsDetailGropuedSector,
 };

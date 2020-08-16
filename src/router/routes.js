@@ -39,6 +39,18 @@ export default [
         component: () => import('@/views/Shell.vue'),
         meta: { requiresAuth: true },
       },
+      {
+        path: '/invoices',
+        name: 'invoices',
+        component: () => import('@/views/Invoices.vue'),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: '/cash',
+        name: 'cash',
+        component: () => import('@/views/Cash.vue'),
+        meta: { requiresAuth: true },
+      },
     ],
   },
 ];

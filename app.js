@@ -18,7 +18,7 @@ app.use(express.static(distDir));
 
 // CORS on ExpressJS
 // Allow CORS with localhost in Chrome
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   // res.header('Access-Control-Allow-Origin', '*');
   // res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
   // res.header(

@@ -31,6 +31,7 @@ api.post('/multicart', cartsControl.postMultiCart);
 api.get('/carts', cartsControl.getCarts);
 api.get('/tickets', cartsControl.getTicketNumber);
 api.get('/detailday', cartsControl.getCartsDetail);
+api.get('/alldetailday', cartsControl.getCartsDetailGropuedSector);
 
 // Users
 api.get('/user/email', usersControl.checkEmail);
@@ -51,7 +52,7 @@ api.get('/sector', sectorsControl.getSector);
 //  Users check, token and cookie
 // api.post('/login', usersControl.postUsersToken);
 
-api.get('/', function(request, response) {
+api.get('/', function (request, response) {
   response.send('NODE AT WORK!!!');
 });
 

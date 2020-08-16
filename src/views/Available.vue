@@ -1,21 +1,5 @@
 <template>
   <div>
-    <nav class="breadcrumb" aria-label="breadcrumbs">
-      <ul>
-        <li>
-          <a href="#" @click="back"
-            ><b-icon icon="arrow-left-thick"></b-icon> VOLVER</a
-          >
-        </li>
-        <li v-if="employee">{{ employee.name }}</li>
-        <li>
-          <a href="#" @click="logout"
-            ><b-icon icon="home-circle"></b-icon> SALIR DE LA APP</a
-          >
-        </li>
-      </ul>
-    </nav>
-
     <p>{{ sectorActual.sector }} PLAYA {{ beachActual.beach }}</p>
 
     <div>

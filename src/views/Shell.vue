@@ -72,7 +72,7 @@
 
         <b-field label="FECHA DESDE">
           <b-datepicker
-            placeholder="Type or select a date..."
+            placeholder="Selecciona una fecha..."
             icon="calendar-today"
             editable
             v-model="dateFrom"
@@ -81,7 +81,7 @@
         </b-field>
         <b-field label="FECHA HASTA">
           <b-datepicker
-            placeholder="Type or select a date..."
+            placeholder="Selecciona una fecha..."
             icon="calendar-today"
             editable
             v-model="dateTo"

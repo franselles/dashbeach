@@ -1,21 +1,5 @@
 <template>
   <div>
-    <nav class="breadcrumb" aria-label="breadcrumbs">
-      <ul>
-        <li>
-          <a href="#" @click="back"
-            ><b-icon icon="arrow-left-thick"></b-icon> VOLVER</a
-          >
-        </li>
-        <li>{{ employee.name }}</li>
-        <li>
-          <a href="#" @click="logout"
-            ><b-icon icon="home-circle"></b-icon> SALIR DE LA APP</a
-          >
-        </li>
-      </ul>
-    </nav>
-
     <b-field label="SELLECIONA FECHA DE RESERVA">
       <div>
         <b-datepicker

@@ -239,7 +239,6 @@ export default {
           commit('setBeaches', data.data);
           return data.data;
         }
-        console.log(data);
       } catch (error) {
         console.log(error);
       }
@@ -260,6 +259,23 @@ export default {
         });
         if (data.data) {
           // await commit('setStateSector', data.data);
+          return data.data;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    async getInvoices(context, payload) {
+      try {
+        const data = await Vue.axios({
+          method: 'get',
+          url: 'alldetailday',
+          params: {
+            date: payload,
+          },
+        });
+        if (data.data) {
           return data.data;
         }
       } catch (error) {

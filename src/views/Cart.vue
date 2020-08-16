@@ -1,20 +1,5 @@
 <template>
   <div>
-    <nav class="breadcrumb" aria-label="breadcrumbs">
-      <ul>
-        <li>
-          <a href="#" @click="back"
-            ><b-icon icon="arrow-left-thick"></b-icon> VOLVER</a
-          >
-        </li>
-        <li>{{ employee.name }}</li>
-        <li>
-          <a href="#" @click="logout"
-            ><b-icon icon="home-circle"></b-icon> SALIR DE LA APP</a
-          >
-        </li>
-      </ul>
-    </nav>
     <b-field label="TELEFONO MOVIL CLIENTE">
       <b-input
         type="number"
@@ -273,7 +258,7 @@ export default {
   computed: {
     ...mapState('userStore', ['cart', 'employee']),
 
-    purchased: function() {
+    purchased: function () {
       return (
         this.cartLocal.detail.length > 0 &&
         this.userID.length == 9 &&
@@ -281,7 +266,7 @@ export default {
       );
     },
 
-    samePhone: function() {
+    samePhone: function () {
       return this.userID == this.userID2;
     },
   },
