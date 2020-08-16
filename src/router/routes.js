@@ -51,6 +51,12 @@ export default [
         component: () => import('@/views/Cash.vue'),
         meta: { requiresAuth: true },
       },
+      {
+        path: '/hello',
+        name: 'hello',
+        component: () => import('@/views/Hello.vue'),
+        meta: { requiresAuth: true },
+      },
     ],
   },
 ];

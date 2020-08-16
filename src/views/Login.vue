@@ -21,7 +21,7 @@
       <div class="control">
         <b-taglist attached>
           <b-tag type="is-dark">version</b-tag>
-          <b-tag type="is-info">0.1.8</b-tag>
+          <b-tag type="is-info">0.1.9</b-tag>
         </b-taglist>
       </div>
     </form>
@@ -61,7 +61,7 @@ export default {
         dni: this.dni.toUpperCase(),
       }).then(response => {
         if (response) {
-          this.$router.push({ name: 'dash' });
+          this.$router.push({ name: 'hello' });
         } else {
           this.error = true;
         }
