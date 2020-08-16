@@ -31,9 +31,9 @@
       <template slot="end">
         <b-navbar-item tag="div">
           <div class="buttons">
-            <router-link class="button is-danger" :to="{ path: '/' }">
-              <strong>SALIR</strong>
-            </router-link>
+            <b-button type="is-primary" @click="exit">
+              SALIR
+            </b-button>
           </div>
         </b-navbar-item>
       </template>
@@ -43,14 +43,19 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex';
+
 export default {
   name: 'dash',
   data() {
     return {};
   },
   methods: {
-    back() {
-      this.$router.go(-1);
+    ...mapMutations('userStore', ['setLogout']),
+
+    exit() {
+      this.setLogout();
+      this.$router.replace({ name: 'login' });
     },
   },
 };

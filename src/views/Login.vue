@@ -21,7 +21,7 @@
       <div class="control">
         <b-taglist attached>
           <b-tag type="is-dark">version</b-tag>
-          <b-tag type="is-info">0.1.6</b-tag>
+          <b-tag type="is-info">0.1.7</b-tag>
         </b-taglist>
       </div>
     </form>
