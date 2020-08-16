@@ -414,6 +414,80 @@ function getCartsDetailGropuedSector(req, res) {
     });
 }
 
+function getCartsDetailGropuedItems(req, res) {
+  const date = req.query.date;
+
+  Carts.aggregate([
+    {
+      $match: {
+        payed: true,
+      },
+    },
+    { $unwind: '$detail' },
+    {
+      $match: {
+        'detail.date': date,
+      },
+    },
+    {
+      $group: {
+        _id: {
+          date: '$detail.date',
+          typeID: '$detail.typeID',
+          type: '$detail.type',
+          price: '$detail.price',
+        },
+        total: { $sum: '$detail.quantity' },
+      },
+    },
+    {
+      $sort: {
+        '_id.typeID': 1,
+      },
+    },
+  ])
+
+    // Carts.find({
+    //   payed: true,
+    //   detail: { $elemMatch: { date: date } },
+    // })
+
+    // Carts.aggregate([
+    //   {
+    //     $match: {
+    //       payed: true,
+    //     },
+    //   },
+    //   {
+    //     $match: {
+    //       'detail.date': date,
+    //     },
+    //   },
+    // ])
+    .exec((err, doc) => {
+      if (err)
+        return res.status(500).send({
+          message: `Error al realizar la petición: ${err}`,
+        });
+      if (!doc)
+        return res.status(404).send({
+          message: 'No existe',
+        });
+
+      let docReformated = [];
+
+      for (const iterator of doc) {
+        let objDoc = {};
+        let obj = Object.assign(objDoc, iterator._id);
+        obj.total = iterator.total;
+        obj.amount = iterator.total * obj.price;
+        docReformated.push(obj);
+      }
+
+      res.status(200).send(docReformated);
+    });
+}
+
 function getItemUser(req, res) {
   const id = req.query.id;
   const ObjectId = mongoose.Types.ObjectId;
@@ -609,4 +683,5 @@ module.exports = {
   getTicketNumberByYearFunction,
   postMultiCart,
   getCartsDetailGropuedSector,
+  getCartsDetailGropuedItems,
 };

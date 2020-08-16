@@ -31,7 +31,7 @@
       <template slot="end">
         <b-navbar-item tag="div">
           <div class="buttons">
-            <b-button type="is-primary" @click="exit">
+            <b-button type="is-danger" @click="exit">
               SALIR
             </b-button>
           </div>

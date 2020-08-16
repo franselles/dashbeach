@@ -282,6 +282,23 @@ export default {
         console.log(error);
       }
     },
+
+    async getCash(context, payload) {
+      try {
+        const data = await Vue.axios({
+          method: 'get',
+          url: 'allcashday',
+          params: {
+            date: payload,
+          },
+        });
+        if (data.data) {
+          return data.data;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
   },
   getters: {},
 };
