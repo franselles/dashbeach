@@ -41,6 +41,9 @@
         <b-table-column label="Total" numeric>
           {{ totalItem(props.row) }} €
         </b-table-column>
+        <b-table-column field="name" label="Nombre">
+          {{ props.row.name }}
+        </b-table-column>
         <b-table-column field="userID" label="Teléfono">
           {{ props.row.userID }}
         </b-table-column>

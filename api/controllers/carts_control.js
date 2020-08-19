@@ -5,6 +5,7 @@ const dayjs = require('dayjs');
 const Carts = require('../models/carts_model');
 const { getCheckFilled } = require('./filled_control');
 const { getSectorFunction } = require('./sectors_control');
+const { getUserPhone } = require('./users_control');
 
 function postUsed(req, res) {
   const id = req.body.id;
@@ -329,89 +330,78 @@ function getCartsDetail(req, res) {
   });
 }
 
-function getCartsDetailGropuedSector(req, res) {
+async function getCartsDetailGropuedSector(req, res) {
   const date = req.query.date;
 
-  Carts.aggregate([
-    {
-      $match: {
-        payed: true,
-      },
-    },
-    { $unwind: '$detail' },
-    {
-      $match: {
-        'detail.date': date,
-      },
-    },
-    {
-      $group: {
-        _id: {
-          userID: '$userID',
-          date: '$detail.date',
-          cityID: '$detail.cityID',
-          city: '$detail.city',
-          beachID: '$detail.beachID',
-          beach: '$detail.beach',
-          sectorID: '$detail.sectorID',
-          sector: '$detail.sector',
-          typeID: '$detail.typeID',
-          type: '$detail.type',
-          itemID: '$detail.itemID',
-          quantity: '$detail.quantity',
-          price: '$detail.price',
-          used: '$detail.used',
-          dateTimeUsed: '$detail.dateTimeUsed',
-          numberItem: '$detail.numberItem',
+  try {
+    let doc = await Carts.aggregate([
+      {
+        $match: {
+          payed: true,
         },
       },
-    },
-    {
-      $sort: {
-        '_id.userID': 1,
-        '_id.cityID': 1,
-        '_id.beachID': 1,
-        '_id.sectorID': 1,
-        '_id.typeID': 1,
+      { $unwind: '$detail' },
+      {
+        $match: {
+          'detail.date': date,
+        },
       },
-    },
-  ])
+      {
+        $group: {
+          _id: {
+            userID: '$userID',
+            date: '$detail.date',
+            cityID: '$detail.cityID',
+            city: '$detail.city',
+            beachID: '$detail.beachID',
+            beach: '$detail.beach',
+            sectorID: '$detail.sectorID',
+            sector: '$detail.sector',
+            typeID: '$detail.typeID',
+            type: '$detail.type',
+            itemID: '$detail.itemID',
+            quantity: '$detail.quantity',
+            price: '$detail.price',
+            used: '$detail.used',
+            dateTimeUsed: '$detail.dateTimeUsed',
+            numberItem: '$detail.numberItem',
+            name: '',
+          },
+        },
+      },
+      {
+        $sort: {
+          '_id.userID': 1,
+          '_id.cityID': 1,
+          '_id.beachID': 1,
+          '_id.sectorID': 1,
+          '_id.typeID': 1,
+        },
+      },
+    ]).exec();
 
-    // Carts.find({
-    //   payed: true,
-    //   detail: { $elemMatch: { date: date } },
-    // })
+    if (!doc)
+      return res.status(404).send({
+        message: 'No existe',
+      });
 
-    // Carts.aggregate([
-    //   {
-    //     $match: {
-    //       payed: true,
-    //     },
-    //   },
-    //   {
-    //     $match: {
-    //       'detail.date': date,
-    //     },
-    //   },
-    // ])
-    .exec((err, doc) => {
-      if (err)
-        return res.status(500).send({
-          message: `Error al realizar la petición: ${err}`,
-        });
-      if (!doc)
-        return res.status(404).send({
-          message: 'No existe',
-        });
+    let docReformated = [];
 
-      let docReformated = [];
-
-      for (const iterator of doc) {
-        docReformated.push(iterator._id);
+    for (const iterator of doc) {
+      let data = await getUserPhone(iterator._id.userID);
+      if (data) {
+        iterator._id.name = data.name;
       }
+      docReformated.push(iterator._id);
+    }
 
-      res.status(200).send(docReformated);
-    });
+    res.status(200).send(docReformated);
+  } catch (error) {
+    if (error)
+      return res.status(500).send({
+        message: `Error al realizar la petición: ${error}`,
+      });
+  }
 }
 
 function getCartsDetailGropuedItems(req, res) {

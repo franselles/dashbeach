@@ -22,6 +22,12 @@ function getUserID(req, res) {
   });
 }
 
+async function getUserPhone(phone) {
+  return await Users.findOne({
+    phone: phone,
+  }).exec();
+}
+
 function getUsers(req, res) {
   Users.find().exec((err, doc) => {
     if (err)
@@ -69,7 +75,7 @@ function postUser(req, res) {
 
   bcrypt
     .hash(data.password, Number(process.env.BCRYPT_SALT_ROUNDS))
-    .then(function(hashedPassword) {
+    .then(function (hashedPassword) {
       data.password = hashedPassword;
       data.save((err, docStored) => {
         if (err)
@@ -86,7 +92,7 @@ function postUser(req, res) {
         });
       });
     })
-    .catch(function(err) {
+    .catch(function (err) {
       return res.status(500).send({
         message: `Error al realizar la petición: ${err}`,
       });
@@ -111,7 +117,7 @@ function getUser(req, res) {
 
     bcrypt
       .compare(password, doc[0].password)
-      .then(function(result) {
+      .then(function (result) {
         if (result) {
           return res.status(200).send({
             _id: doc[0]._id,
@@ -126,7 +132,7 @@ function getUser(req, res) {
           });
         }
       })
-      .catch(function(err) {
+      .catch(function (err) {
         return res.status(500).send({
           message: `Error al realizar la petición: ${err}`,
         });
@@ -134,4 +140,11 @@ function getUser(req, res) {
   });
 }
 
-module.exports = { getUserID, postUser, getUser, checkEmail, getUsers };
+module.exports = {
+  getUserID,
+  postUser,
+  getUser,
+  checkEmail,
+  getUsers,
+  getUserPhone,
+};
