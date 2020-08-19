@@ -145,7 +145,7 @@ export default {
       canceled: false,
       payed: true,
       lang: '',
-      payMethod: 1,
+      payMethod: 0,
       coupon: '',
       detail: {
         date: '',
@@ -178,7 +178,7 @@ export default {
         type: '',
       },
       items: [],
-      type: '1a Y 2a LINEA. 2 HAMACAS + 1 SOMBRILLA',
+      type: '',
       price: 0,
       quantity: 0,
       correct: false,
