@@ -410,6 +410,37 @@ export default {
         return false;
       }
     },
+
+    async getUsersTickets() {
+      try {
+        const data = await Vue.axios({
+          method: 'get',
+          url: 'userstickets',
+        });
+        if (data.data) {
+          return data.data;
+        }
+      } catch (error) {
+        return false;
+      }
+    },
+
+    async getTicketsUser(context, payload) {
+      try {
+        const data = await Vue.axios({
+          method: 'get',
+          url: 'ticketsuser',
+          params: {
+            userid: payload,
+          },
+        });
+        if (data.data) {
+          return data.data;
+        }
+      } catch (error) {
+        return false;
+      }
+    },
   },
   getters: {},
 };

@@ -1,12 +1,13 @@
 {
   "name": "dashbeach",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "local": "nodemon server.js"
+    "local": "nodemon server.js",
+    "start": "node server.js"
   },
   "dependencies": {
     "axios": "^0.19.2",
@@ -14,12 +15,12 @@
     "body-parser": "^1.19.0",
     "buefy": "^0.8.20",
     "core-js": "^3.6.5",
-    "dayjs": "^1.8.33",
+    "dayjs": "^1.8.34",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "helmet": "^4.1.0",
     "mongoose": "^5.10.0",
-    "vue": "^2.6.11",
+    "vue": "^2.6.12",
     "vue-axios": "^2.1.5",
     "vue-router": "^3.4.3",
     "vuex": "^3.5.1"
@@ -37,6 +38,6 @@
     "eslint-plugin-vue": "^7.0.0-beta.2",
     "nodemon": "^2.0.4",
     "prettier": "2.0.5",
-    "vue-template-compiler": "^2.6.11"
+    "vue-template-compiler": "^2.6.12"
   }
 }

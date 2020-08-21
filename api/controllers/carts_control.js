@@ -658,6 +658,63 @@ function getTicket(req, res) {
   });
 }
 
+async function getUsersTickets(req, res) {
+  try {
+    let doc = await Carts.aggregate([
+      {
+        $match: {
+          payed: true,
+        },
+      },
+      {
+        $group: {
+          _id: '$userID',
+        },
+      },
+    ]).exec();
+
+    if (!doc)
+      return res.status(404).send({
+        message: 'No existe',
+      });
+
+    for (const iterator of doc) {
+      let name = await getUserPhone(iterator._id);
+      if (name) {
+        iterator.name = name.name;
+      } else {
+        iterator.name = '';
+      }
+    }
+
+    res.status(200).send(doc);
+  } catch (error) {
+    return res.status(500).send({
+      message: `Error al realizar la petición: ${error}`,
+    });
+  }
+}
+
+function getTicketsUser(req, res) {
+  const userID = req.query.userid;
+
+  Carts.find({
+    userID: userID,
+    payed: true,
+  }).exec((err, doc) => {
+    if (err)
+      return res.status(500).send({
+        message: `Error al realizar la petición: ${err}`,
+      });
+    if (!doc)
+      return res.status(404).send({
+        message: 'No existe',
+      });
+
+    res.status(200).send(doc);
+  });
+}
+
 module.exports = {
   postCart,
   getCarts,
@@ -674,4 +731,6 @@ module.exports = {
   postMultiCart,
   getCartsDetailGropuedSector,
   getCartsDetailGropuedItems,
+  getUsersTickets,
+  getTicketsUser,
 };

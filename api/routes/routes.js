@@ -33,6 +33,8 @@ api.get('/tickets', cartsControl.getTicketNumber);
 api.get('/detailday', cartsControl.getCartsDetail);
 api.get('/alldetailday', cartsControl.getCartsDetailGropuedSector);
 api.get('/allcashday', cartsControl.getCartsDetailGropuedItems);
+api.get('/userstickets', cartsControl.getUsersTickets);
+api.get('/ticketsuser', cartsControl.getTicketsUser);
 
 // Users
 api.get('/user/email', usersControl.checkEmail);

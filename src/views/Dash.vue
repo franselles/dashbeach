@@ -17,6 +17,9 @@
           <b-navbar-item tag="router-link" :to="{ path: '/cash' }">
             FACTURACION
           </b-navbar-item>
+          <b-navbar-item tag="router-link" :to="{ path: '/tickets' }">
+            TICKETS
+          </b-navbar-item>
         </b-navbar-dropdown>
         <b-navbar-dropdown label="RESERVAR">
           <b-navbar-item tag="router-link" :to="{ path: '/citybeaches' }">

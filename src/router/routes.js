@@ -57,6 +57,12 @@ export default [
         component: () => import('@/views/Hello.vue'),
         meta: { requiresAuth: true },
       },
+      {
+        path: '/tickets',
+        name: 'tickets',
+        component: () => import('@/views/Tickets.vue'),
+        meta: { requiresAuth: true },
+      },
     ],
   },
 ];
