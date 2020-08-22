@@ -83,7 +83,7 @@ function postItems(req, res) {
   //   res.status(200).send(docStored._id);
   // });
 
-  Items.insertMany(req.body, function(err, docStored) {
+  Items.insertMany(req.body, function (err, docStored) {
     if (err)
       res.status(500).send({
         message: `Error al salvar en la base de datos: ${err} `,

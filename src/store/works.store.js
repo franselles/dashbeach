@@ -272,7 +272,8 @@ export default {
           method: 'get',
           url: 'alldetailday',
           params: {
-            date: payload,
+            datefrom: payload.dateFrom,
+            dateto: payload.dateTo,
           },
         });
         if (data.data) {
@@ -289,7 +290,8 @@ export default {
           method: 'get',
           url: 'allcashday',
           params: {
-            date: payload,
+            datefrom: payload.dateFrom,
+            dateto: payload.dateTo,
           },
         });
         if (data.data) {

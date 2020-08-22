@@ -53,6 +53,9 @@
           <b-table-column field="userID" label="Teléfono">
             {{ props.row.userID }}
           </b-table-column>
+          <b-table-column field="ticketID" label="Ticket">
+            {{ props.row.ticketID }}
+          </b-table-column>
         </template>
       </b-table>
     </section>
@@ -81,9 +84,11 @@ export default {
 
     filterInvoices() {
       const dateFilter = dayjs(new Date()).format('YYYY-MM-DD');
-      this.getInvoices(dateFilter).then(result => {
-        this.invoices = result;
-      });
+      this.getInvoices({ dateFrom: dateFilter, dateTo: dateFilter }).then(
+        result => {
+          this.invoices = result;
+        }
+      );
     },
 
     totalItem(e) {

@@ -1,28 +1,40 @@
 <template>
   <div>
+    <h5 class="title is-5">VENTAS POR FECHA</h5>
     <div class="field is-grouped">
-      <p class="control is-expanded">
-        <b-datepicker
-          placeholder="Selecciona una fecha..."
-          icon="calendar-today"
-          v-model="date"
-          :day-names="calendar.days"
-          :month-names="calendar.months"
-          :first-day-of-week="1"
-          :nearby-month-days="false"
-          :focused-date="date"
-        >
-        </b-datepicker>
-      </p>
-      <p class="control">
-        <b-button type="is-primary" @click="filterCash">
-          BUSCAR
-        </b-button>
-      </p>
+      <b-datepicker
+        placeholder="Selecciona una fecha..."
+        icon="calendar-today"
+        v-model="dateFrom"
+        :day-names="calendar.days"
+        :month-names="calendar.months"
+        :first-day-of-week="1"
+        :nearby-month-days="false"
+        :focused-date="dateFrom"
+      >
+      </b-datepicker>
+      <b-datepicker
+        placeholder="Selecciona una fecha..."
+        icon="calendar-today"
+        v-model="dateTo"
+        :day-names="calendar.days"
+        :month-names="calendar.months"
+        :first-day-of-week="1"
+        :nearby-month-days="false"
+        :focused-date="dateTo"
+      >
+      </b-datepicker>
+
+      <b-button type="is-primary" @click="filterCash">
+        BUSCAR
+      </b-button>
     </div>
     <b-table :data="cash">
       <template slot-scope="props">
-        <b-table-column field="sectorID" label="ID" numeric>
+        <b-table-column field="date" label="Fecha">
+          {{ props.row.date }}
+        </b-table-column>
+        <b-table-column field="typeID" label="ID" numeric>
           {{ props.row.typeID }}
         </b-table-column>
         <b-table-column field="type" label="Item">
@@ -71,7 +83,8 @@ export default {
         ],
         days: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
       },
-      date: new Date(),
+      dateFrom: new Date(),
+      dateTo: new Date(),
       cash: [],
     };
   },
@@ -79,10 +92,13 @@ export default {
     ...mapActions('worksStore', ['getCash']),
 
     filterCash() {
-      const dateFilter = dayjs(this.date).format('YYYY-MM-DD');
-      this.getCash(dateFilter).then(result => {
-        this.cash = result;
-      });
+      const dateFilterFrom = dayjs(this.dateFrom).format('YYYY-MM-DD');
+      const dateFilterTo = dayjs(this.dateTo).format('YYYY-MM-DD');
+      this.getCash({ dateFrom: dateFilterFrom, dateTo: dateFilterTo }).then(
+        result => {
+          this.cash = result;
+        }
+      );
     },
   },
 

@@ -331,7 +331,8 @@ function getCartsDetail(req, res) {
 }
 
 async function getCartsDetailGropuedSector(req, res) {
-  const date = req.query.date;
+  const datefrom = req.query.datefrom;
+  const dateto = req.query.dateto;
 
   try {
     let doc = await Carts.aggregate([
@@ -343,12 +344,16 @@ async function getCartsDetailGropuedSector(req, res) {
       { $unwind: '$detail' },
       {
         $match: {
-          'detail.date': date,
+          'detail.date': {
+            $gte: datefrom,
+            $lte: dateto,
+          },
         },
       },
       {
         $group: {
           _id: {
+            ticketID: '$ticketID',
             userID: '$userID',
             date: '$detail.date',
             cityID: '$detail.cityID',
@@ -371,6 +376,7 @@ async function getCartsDetailGropuedSector(req, res) {
       },
       {
         $sort: {
+          '_id.date': 1,
           '_id.userID': 1,
           '_id.cityID': 1,
           '_id.beachID': 1,
@@ -405,7 +411,8 @@ async function getCartsDetailGropuedSector(req, res) {
 }
 
 function getCartsDetailGropuedItems(req, res) {
-  const date = req.query.date;
+  const datefrom = req.query.datefrom;
+  const dateto = req.query.dateto;
 
   Carts.aggregate([
     {
@@ -416,7 +423,10 @@ function getCartsDetailGropuedItems(req, res) {
     { $unwind: '$detail' },
     {
       $match: {
-        'detail.date': date,
+        'detail.date': {
+          $gte: datefrom,
+          $lte: dateto,
+        },
       },
     },
     {
@@ -432,50 +442,32 @@ function getCartsDetailGropuedItems(req, res) {
     },
     {
       $sort: {
+        '_id.date': 1,
         '_id.typeID': 1,
       },
     },
-  ])
+  ]).exec((err, doc) => {
+    if (err)
+      return res.status(500).send({
+        message: `Error al realizar la petición: ${err}`,
+      });
+    if (!doc)
+      return res.status(404).send({
+        message: 'No existe',
+      });
 
-    // Carts.find({
-    //   payed: true,
-    //   detail: { $elemMatch: { date: date } },
-    // })
+    let docReformated = [];
 
-    // Carts.aggregate([
-    //   {
-    //     $match: {
-    //       payed: true,
-    //     },
-    //   },
-    //   {
-    //     $match: {
-    //       'detail.date': date,
-    //     },
-    //   },
-    // ])
-    .exec((err, doc) => {
-      if (err)
-        return res.status(500).send({
-          message: `Error al realizar la petición: ${err}`,
-        });
-      if (!doc)
-        return res.status(404).send({
-          message: 'No existe',
-        });
+    for (const iterator of doc) {
+      let objDoc = {};
+      let obj = Object.assign(objDoc, iterator._id);
+      obj.total = iterator.total;
+      obj.amount = iterator.total * obj.price;
+      docReformated.push(obj);
+    }
 
-      let docReformated = [];
-
-      for (const iterator of doc) {
-        let objDoc = {};
-        let obj = Object.assign(objDoc, iterator._id);
-        obj.total = iterator.total;
-        obj.amount = iterator.total * obj.price;
-        docReformated.push(obj);
-      }
-
-      res.status(200).send(docReformated);
-    });
+    res.status(200).send(docReformated);
+  });
 }
 
 function getItemUser(req, res) {
@@ -701,18 +693,20 @@ function getTicketsUser(req, res) {
   Carts.find({
     userID: userID,
     payed: true,
-  }).exec((err, doc) => {
-    if (err)
-      return res.status(500).send({
-        message: `Error al realizar la petición: ${err}`,
-      });
-    if (!doc)
-      return res.status(404).send({
-        message: 'No existe',
-      });
+  })
+    .sort({ date: 1 })
+    .exec((err, doc) => {
+      if (err)
+        return res.status(500).send({
+          message: `Error al realizar la petición: ${err}`,
+        });
+      if (!doc)
+        return res.status(404).send({
+          message: 'No existe',
+        });
 
-    res.status(200).send(doc);
-  });
+      res.status(200).send(doc);
+    });
 }
 
 module.exports = {

@@ -1,28 +1,40 @@
 <template>
   <div>
+    <h5 class="title is-5">RESERVAS POR FECHA</h5>
     <div class="field is-grouped">
-      <p class="control is-expanded">
-        <b-datepicker
-          placeholder="Selecciona una fecha..."
-          icon="calendar-today"
-          v-model="date"
-          :day-names="calendar.days"
-          :month-names="calendar.months"
-          :first-day-of-week="1"
-          :nearby-month-days="false"
-          :focused-date="date"
-        >
-        </b-datepicker>
-      </p>
-      <p class="control">
-        <b-button type="is-primary" @click="filterInvoices">
-          BUSCAR
-        </b-button>
-      </p>
+      <b-datepicker
+        placeholder="Selecciona una fecha..."
+        icon="calendar-today"
+        v-model="dateFrom"
+        :day-names="calendar.days"
+        :month-names="calendar.months"
+        :first-day-of-week="1"
+        :nearby-month-days="false"
+        :focused-date="dateFrom"
+      >
+      </b-datepicker>
+      <b-datepicker
+        placeholder="Selecciona una fecha..."
+        icon="calendar-today"
+        v-model="dateTo"
+        :day-names="calendar.days"
+        :month-names="calendar.months"
+        :first-day-of-week="1"
+        :nearby-month-days="false"
+        :focused-date="dateTo"
+      >
+      </b-datepicker>
+
+      <b-button type="is-primary" @click="filterInvoices">
+        BUSCAR
+      </b-button>
     </div>
 
     <b-table :data="invoices">
       <template slot-scope="props">
+        <b-table-column field="date" label="Fecha">
+          {{ props.row.date }}
+        </b-table-column>
         <b-table-column field="beach" label="Playa">
           {{ props.row.beach }}
         </b-table-column>
@@ -46,6 +58,9 @@
         </b-table-column>
         <b-table-column field="userID" label="Teléfono">
           {{ props.row.userID }}
+        </b-table-column>
+        <b-table-column field="ticketID" label="Ticket">
+          {{ props.row.ticketID }}
         </b-table-column>
       </template>
     </b-table>
@@ -78,7 +93,8 @@ export default {
         ],
         days: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
       },
-      date: new Date(),
+      dateFrom: new Date(),
+      dateTo: new Date(),
       invoices: [],
     };
   },
@@ -87,10 +103,13 @@ export default {
     ...mapActions('worksStore', ['getInvoices']),
 
     filterInvoices() {
-      const dateFilter = dayjs(this.date).format('YYYY-MM-DD');
-      this.getInvoices(dateFilter).then(result => {
-        this.invoices = result;
-      });
+      const dateFilterFrom = dayjs(this.dateFrom).format('YYYY-MM-DD');
+      const dateFilterTo = dayjs(this.dateTo).format('YYYY-MM-DD');
+      this.getInvoices({ dateFrom: dateFilterFrom, dateTo: dateFilterTo }).then(
+        result => {
+          this.invoices = result;
+        }
+      );
     },
 
     totalItem(e) {
