@@ -1,6 +1,6 @@
 {
   "name": "dashbeach",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -13,7 +13,7 @@
     "axios": "^0.20.0",
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
-    "buefy": "^0.9.2",
+    "buefy": "^0.8.20",
     "core-js": "^3.6.5",
     "dayjs": "^1.8.34",
     "dotenv": "^8.2.0",
