@@ -2,32 +2,39 @@
   <div>
     <h5 class="title is-5">RESERVAS POR FECHA</h5>
     <div class="field is-grouped is-grouped-multiline">
-      <b-datepicker
-        placeholder="Selecciona una fecha..."
-        icon="calendar-today"
-        v-model="dateFrom"
-        :day-names="calendar.days"
-        :month-names="calendar.months"
-        :first-day-of-week="1"
-        :nearby-month-days="false"
-        :focused-date="dateFrom"
-      >
-      </b-datepicker>
-      <b-datepicker
-        placeholder="Selecciona una fecha..."
-        icon="calendar-today"
-        v-model="dateTo"
-        :day-names="calendar.days"
-        :month-names="calendar.months"
-        :first-day-of-week="1"
-        :nearby-month-days="false"
-        :focused-date="dateTo"
-      >
-      </b-datepicker>
+      <b-field label="Desde">
+        <b-datepicker
+          placeholder="Selecciona una fecha..."
+          icon="calendar-today"
+          v-model="dateFrom"
+          :day-names="calendar.days"
+          :month-names="calendar.months"
+          :first-day-of-week="1"
+          :nearby-month-days="false"
+          :focused-date="dateFrom"
+        >
+        </b-datepicker>
+      </b-field>
 
-      <b-button type="is-primary" @click="filterInvoices">
-        BUSCAR
-      </b-button>
+      <b-field label="Hasta">
+        <b-datepicker
+          placeholder="Selecciona una fecha..."
+          icon="calendar-today"
+          v-model="dateTo"
+          :day-names="calendar.days"
+          :month-names="calendar.months"
+          :first-day-of-week="1"
+          :nearby-month-days="false"
+          :focused-date="dateTo"
+        >
+        </b-datepicker>
+      </b-field>
+
+      <b-field label="Acción">
+        <b-button type="is-primary" @click="filterInvoices">
+          BUSCAR
+        </b-button>
+      </b-field>
     </div>
 
     <b-table :data="invoices">
