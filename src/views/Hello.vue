@@ -28,35 +28,38 @@
     </section>
     <section>
       <b-table :data="invoices" hoverable>
-        <template slot-scope="props">
-          <b-table-column field="beach" label="Playa">
-            {{ props.row.beach }}
-          </b-table-column>
-          <b-table-column field="sectorID" label="Sector">
-            {{ props.row.sectorID }}
-          </b-table-column>
-          <b-table-column field="type" label="Item">
-            {{ props.row.type }}
-          </b-table-column>
-          <b-table-column field="quantity" label="Cantidad" numeric>
-            {{ props.row.quantity }}
-          </b-table-column>
-          <b-table-column field="price" label="Precio" numeric>
-            {{ props.row.price }} €
-          </b-table-column>
-          <b-table-column label="Total" numeric>
-            {{ totalItem(props.row) }} €
-          </b-table-column>
-          <b-table-column field="name" label="Nombre">
-            {{ props.row.name }}
-          </b-table-column>
-          <b-table-column field="userID" label="Teléfono">
-            {{ props.row.userID }}
-          </b-table-column>
-          <b-table-column field="ticketID" label="Ticket">
-            {{ props.row.ticketID }}
-          </b-table-column>
-        </template>
+        <b-table-column field="beach" label="Playa" v-slot="props">
+          {{ props.row.beach }}
+        </b-table-column>
+        <b-table-column field="sectorID" label="Sector" v-slot="props">
+          {{ props.row.sectorID }}
+        </b-table-column>
+        <b-table-column field="type" label="Item" v-slot="props">
+          {{ props.row.type }}
+        </b-table-column>
+        <b-table-column
+          field="quantity"
+          label="Cantidad"
+          numeric
+          v-slot="props"
+        >
+          {{ props.row.quantity }}
+        </b-table-column>
+        <b-table-column field="price" label="Precio" numeric v-slot="props">
+          {{ props.row.price }} €
+        </b-table-column>
+        <b-table-column label="Total" numeric v-slot="props">
+          {{ totalItem(props.row) }} €
+        </b-table-column>
+        <b-table-column field="name" label="Nombre" v-slot="props">
+          {{ props.row.name }}
+        </b-table-column>
+        <b-table-column field="userID" label="Teléfono" v-slot="props">
+          {{ props.row.userID }}
+        </b-table-column>
+        <b-table-column field="ticketID" label="Ticket" v-slot="props">
+          {{ props.row.ticketID }}
+        </b-table-column>
       </b-table>
     </section>
   </div>

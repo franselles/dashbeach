@@ -1,7 +1,7 @@
 <template>
   <div>
     <h5 class="title is-5">VENTAS POR FECHA</h5>
-    <div class="field is-grouped">
+    <div class="field is-grouped is-grouped-multiline">
       <b-datepicker
         placeholder="Selecciona una fecha..."
         icon="calendar-today"
@@ -30,26 +30,25 @@
       </b-button>
     </div>
     <b-table :data="cash">
-      <template slot-scope="props">
-        <b-table-column field="date" label="Fecha">
-          {{ props.row.date }}
-        </b-table-column>
-        <b-table-column field="typeID" label="ID" numeric>
-          {{ props.row.typeID }}
-        </b-table-column>
-        <b-table-column field="type" label="Item">
-          {{ props.row.type }}
-        </b-table-column>
-        <b-table-column field="quantity" label="Cantidad" numeric>
-          {{ props.row.total }}
-        </b-table-column>
-        <b-table-column field="price" label="Precio" numeric>
-          {{ props.row.price }} €
-        </b-table-column>
-        <b-table-column label="Total" numeric>
-          {{ props.row.amount }} €
-        </b-table-column>
-      </template>
+      <b-table-column field="date" label="Fecha" v-slot="props">
+        {{ props.row.date }}
+      </b-table-column>
+      <b-table-column field="typeID" label="ID" numeric v-slot="props">
+        {{ props.row.typeID }}
+      </b-table-column>
+      <b-table-column field="type" label="Item" v-slot="props">
+        {{ props.row.type }}
+      </b-table-column>
+      <b-table-column field="quantity" label="Cantidad" numeric v-slot="props">
+        {{ props.row.total }}
+      </b-table-column>
+      <b-table-column field="price" label="Precio" numeric v-slot="props">
+        {{ props.row.price }} €
+      </b-table-column>
+      <b-table-column label="Total" numeric v-slot="props">
+        {{ props.row.amount }} €
+      </b-table-column>
+
       <template slot="footer">
         <div class="has-text-right">TOTAL FACTURADO {{ getAmount }} €</div>
       </template>
