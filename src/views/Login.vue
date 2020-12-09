@@ -6,9 +6,7 @@
         </b-input>
       </b-field>
       <article class="message is-danger" v-if="error">
-        <div class="message-body">
-          EMPLEADO NO ENCONTRADO.
-        </div>
+        <div class="message-body">EMPLEADO NO ENCONTRADO.</div>
       </article>
       <div class="buttons">
         <b-button
@@ -21,14 +19,12 @@
       <div class="control">
         <b-taglist attached>
           <b-tag type="is-dark">version</b-tag>
-          <b-tag type="is-info">0.1.17</b-tag>
+          <b-tag type="is-info">0.1.18</b-tag>
         </b-taglist>
       </div>
     </form>
     <article class="message is-danger" v-if="offline">
-      <div class="message-body">
-        ESTABLECIENDO CONEXIÓN, ESPERE.
-      </div>
+      <div class="message-body">ESTABLECIENDO CONEXIÓN, ESPERE.</div>
     </article>
   </div>
 </template>
