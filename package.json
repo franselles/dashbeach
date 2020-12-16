@@ -1,6 +1,6 @@
 {
   "name": "dashbeach",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -19,7 +19,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "helmet": "^4.2.0",
-    "mongoose": "^5.11.5",
+    "mongoose": "^5.11.8",
     "vue": "^2.6.12",
     "vue-axios": "^2.1.5",
     "vue-router": "^3.4.9",
@@ -34,8 +34,8 @@
     "@vue/eslint-config-prettier": "^6.0.0",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.15.0",
-    "eslint-plugin-prettier": "^3.2.0",
-    "eslint-plugin-vue": "^7.2.0",
+    "eslint-plugin-prettier": "^3.3.0",
+    "eslint-plugin-vue": "^7.3.0",
     "nodemon": "^2.0.6",
     "prettier": "^2.2.1",
     "vue-template-compiler": "^2.6.12"
